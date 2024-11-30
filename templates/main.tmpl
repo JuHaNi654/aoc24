@@ -1,0 +1,29 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"path/filepath"
+)
+
+const path = "{{ .Path }}"
+
+func main() {
+  pwd, _ := os.Getwd()
+  filename := os.Args[1]
+  
+	file, err := os.Open(filepath.Join(pwd, path, filename))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+  s := bufio.NewScanner(file)
+  for s.Scan() {
+    fmt.Println(s.Text())   
+  }
+
+  // Add code
+}
