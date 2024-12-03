@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,23 +12,20 @@ import (
 
 const path = "./"
 
+var active = true
+var yes = []byte("do()")
+var no = []byte("don't()")
+var reDigits = regexp.MustCompile(`(\d+)`)
+
 func part1(input []byte) [][]int {
 	re := regexp.MustCompile(`mul\(\d+,\d+\)`)
 	data := re.FindAll(input, -1)
 	list := [][]int{}
 	for _, i := range data {
 		group := []int{}
-		number := ""
-		for _, r := range i {
-			if r >= 48 && r <= 57 {
-				number += string(r)
-			}
-
-			if r == 44 || r == 41 {
-				asInt, _ := strconv.Atoi(number)
-				group = append(group, asInt)
-				number = ""
-			}
+		for _, r := range reDigits.FindAll(i, -1) {
+			asInt, _ := strconv.Atoi(string(r))
+			group = append(group, asInt)
 		}
 		list = append(list, group)
 	}
@@ -35,21 +33,19 @@ func part1(input []byte) [][]int {
 	return list
 }
 
-var active = true
-
 func part2(input []byte) [][]int {
 	list := [][]int{}
 	re := regexp.MustCompile(`mul\(\d+,\d+\)|don't\(\)|do\(\)`)
 	data := re.FindAll(input, -1)
 	for _, i := range data {
-		if string(i) == "don't()" {
+		if bytes.Equal(i, no) {
 			active = false
-      continue
+			continue
 		}
 
-		if string(i) == "do()" {
+		if bytes.Equal(i, yes) {
 			active = true
-      continue
+			continue
 		}
 
 		if !active {
@@ -57,17 +53,9 @@ func part2(input []byte) [][]int {
 		}
 
 		group := []int{}
-		number := ""
-		for _, r := range i {
-			if r >= 48 && r <= 57 {
-				number += string(r)
-			}
-
-			if r == 44 || r == 41 {
-				asInt, _ := strconv.Atoi(number)
-				group = append(group, asInt)
-				number = ""
-			}
+		for _, r := range reDigits.FindAll(i, -1) {
+			asInt, _ := strconv.Atoi(string(r))
+			group = append(group, asInt)
 		}
 		list = append(list, group)
 	}
